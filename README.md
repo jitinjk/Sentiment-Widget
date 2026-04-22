@@ -1,16 +1,64 @@
-# React + Vite
+# Mini Sentiment Widget
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React SPA built with Vite.
 
-Currently, two official plugins are available:
+## Running locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+Then open [http://localhost:5173](http://localhost:5173).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Running tests
 
-## Expanding the ESLint configuration
+```bash
+npm test              # single run
+npm run test:watch    # watch mode
+npm run test:coverage # with coverage report
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Building for production
+
+```bash
+npm run build
+npm run preview
+```
+
+## Architecture & design decisions
+
+### Component structure
+
+| Component | Responsibility |
+|-----------|---------------|
+| `RatingChips` | Renders the 1–5 rating buttons; fully controlled, no internal state |
+| `CommentBox` | Controlled textarea; delegates change events up |
+| `SubmitButton` | Thin wrapper; disabled state driven by parent |
+| `SummaryPanel` | Pure display; renders nothing until at least one submission exists |
+| `ThemeToggle` | Reads/writes theme via context |
+
+### State management
+
+All feedback state lives in a single custom hook `useFeedback` (`src/hooks/useFeedback.js`). This keeps `App.jsx` as a composition root only and makes the logic independently testable without rendering.
+
+### Theme
+
+A `ThemeContext` persists the user's preference in `localStorage` and syncs a `data-theme` attribute on `<html>`. CSS custom properties handle all theming with no JS style injection or third-party library.
+
+### Spam prevention
+
+After a successful submission the hook sets `isDisabled=true` and schedules a 3-second timeout to re-enable interaction. All child components receive `disabled` as a prop so they cannot be circumvented independently.
+
+### Styling
+
+Plain CSS with custom properties (no CSS-in-JS, no Tailwind).
+
+## Deployment (AWS)
+
+Deploy the `dist/` folder to AWS S3:
+
+```bash
+npm run build
+aws s3 sync dist/ s3://<your-bucket> --delete
+```
