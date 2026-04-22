@@ -11,6 +11,10 @@ npm run dev
 
 Then open [http://localhost:5173](http://localhost:5173).
 
+## Production URL (Hosted on S3) 
+
+http://mini-sentiment-widget.s3-website-ap-southeast-2.amazonaws.com/
+
 ## Running tests
 
 ```bash
